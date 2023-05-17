@@ -15,3 +15,12 @@ steps:
     SonarCloud: 'Laborario7'
     organization: 'devopsjobpilquiman'
     scannerMode: 'Other'
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'Laborario7'
+    organization: 'devopsjobpilquiman'
+    scannerMode: 'MSBuild'
+    projectKey: 'devopsjobpilquiman'
+  displayName: 'SonarCloud Prepare'
+
