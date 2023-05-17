@@ -10,11 +10,6 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: SonarCloudPrepare@1
-  inputs:
-    SonarCloud: 'Laborario7'
-    organization: 'devopsjobpilquiman'
-    scannerMode: 'Other'
 
 - task: SonarCloudPrepare@1
   inputs:
@@ -34,4 +29,17 @@ steps:
     sonarQubeRunAnalysis: true
     sqGradlePluginVersionChoice: 'specify'
     sonarQubeGradlePluginVersion: '3.5.0.2730'
+    spotBugsAnalysis: false
+
+- task: Gradle@3
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    tasks: 'build'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    codeCoverageToolOption: 'JaCoCo'
+    codeCoverageClassFilesDirectories: 'build/classes/main/'
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: false
     spotBugsAnalysis: false
