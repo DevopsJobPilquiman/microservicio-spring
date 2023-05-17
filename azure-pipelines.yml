@@ -10,10 +10,12 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script:
+    git fetch --unshallow
+  displayName: 'para non-shallow clone'
 
 - task: Maven@4
+  displayName: 'Maven pom.xml'
   inputs:
     mavenPomFile: 'pom.xml'
     publishJUnitResults: true
