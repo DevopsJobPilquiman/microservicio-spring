@@ -14,6 +14,7 @@ steps:
       git fetch --unshallow
   displayName: 'convert to non-shallow clone' 
 
+
 - task: Gradle@3
   inputs:
     gradleWrapperFile: 'gradlew'
@@ -24,7 +25,21 @@ steps:
     sonarQubeRunAnalysis: false
     spotBugsAnalysis: false
   displayName: Build
-  
+
+
+- task: Gradle@3
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    tasks: 'build'
+    publishJUnitResults: true
+    testResultsFiles: '${System.DefaultWorkingDirectory}/**/reports/jacoco/test/jacocoTestReport.xml'
+    codeCoverageToolOption: 'JaCoCo'
+    codeCoverageClassFilesDirectories: '${System.DefaultWorkingDirectory}/**/reports/jacoco/test/html'
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: false
+    spotBugsAnalysis: false
+    
 - task: SonarCloudPrepare@1
   inputs:
     SonarCloud: 'Laborario7'
@@ -38,11 +53,10 @@ steps:
   inputs:
     gradleWrapperFile: 'gradlew'
     workingDirectory: '$(Build.SourcesDirectory)'
+    tasks: 'build'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    sonarQubeRunAnalysis: false
-    spotBugsAnalysis: false
+ 
 
 - task: Gradle@3
   inputs:
