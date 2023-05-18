@@ -26,10 +26,10 @@ steps:
   
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'SonarCloud'
+    SonarCloud: 'Laborario7'
     organization: 'devopsjobpilquiman'
+    scannerMode: 'MSBuild'
     projectKey: 'devopsjobpilquiman'
-    projectName: 'DevopsJobPilquiman_microservicio-spring'
   displayName: 'SonarCloud Prepare'
 
 - task: Gradle@3
