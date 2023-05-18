@@ -53,21 +53,19 @@ steps:
     sqGradlePluginVersionChoice: 'specify'
     sonarQubeGradlePluginVersion: '3.3'
     spotBugsAnalysis: false
- 
-- task: Docker@2
-  inputs:
-      containerRegistry: 'Docker'
-      command: 'login'
-  
-- task: Docker@2
-  inputs:
-      containerRegistry: 'Docker'
-      repository: 'devopsjobpilquiman/DevopsJobPilquiman_microservicio-spring'
-      command: 'build'
-      Dockerfile: '**/Dockerfile'
 
 - task: Docker@2
   inputs:
-      containerRegistry: 'Docker'
-      repository: 'devopsjobpilquiman/DevopsJobPilquiman_microservicio-spring'
-      command: 'push'
+    containerRegistry: 'dockerConexionJob'
+    command: 'login'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerConexionJob'
+    repository: 'jobpilquiman/devopsjobpilquiman'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerConexionJob'
+    repository: 'jobpilquiman/devopsjobpilquiman'
+    command: 'push'
