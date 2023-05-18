@@ -22,6 +22,7 @@ steps:
     testResultsFiles: '**/TEST-*.xml'
     codeCoverageToolOption: 'JaCoCo'
     codeCoverageClassFilesDirectories: 'build/classes/main/'
+    codeCoverageGradle5xOrHigher: false
     javaHomeOption: 'JDKVersion'
     sonarQubeRunAnalysis: true
     sqGradlePluginVersionChoice: 'build'
