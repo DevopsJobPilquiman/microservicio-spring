@@ -10,36 +10,64 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- script: |
+      git fetch --unshallow
+  displayName: 'convert to non-shallow clone' 
 
+- task: Gradle@3
+  inputs:
+      gradleWrapperFile: 'gradlew'
+      tasks: 'build'
+      publishJUnitResults: true
+      javaHomeOption: 'JDKVersion'
+      sonarQubeRunAnalysis: false
+      spotBugsAnalysis: false
+  displayName: Build
+  
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'Laborario7'
+    SonarCloud: 'SonarCloud'
     organization: 'devopsjobpilquiman'
-    scannerMode: 'MSBuild'
     projectKey: 'devopsjobpilquiman'
+    projectName: 'DevopsJobPilquiman_microservicio-spring'
   displayName: 'SonarCloud Prepare'
 
 - task: Gradle@3
+  displayName: 'Run test'
   inputs:
     gradleWrapperFile: 'gradlew'
-    tasks: 'build'
+    workingDirectory: '$(Build.SourcesDirectory)'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
     javaHomeOption: 'JDKVersion'
-    sonarQubeRunAnalysis: true
-    sqGradlePluginVersionChoice: 'specify'
-    sonarQubeGradlePluginVersion: '3.5.0.2730'
+    sonarQubeRunAnalysis: false
     spotBugsAnalysis: false
 
 - task: Gradle@3
   inputs:
     gradleWrapperFile: 'gradlew'
-    workingDirectory: '$(Build.SourcesDirectory)'
-    tasks: 'build'
-    publishJUnitResults: true
-    testResultsFiles: '**/TEST-*.xml'
-    codeCoverageToolOption: 'Cobertura'
-    codeCoverageClassFilesDirectories: 'build/classes/main/'
+    tasks: 'sonar'
+    publishJUnitResults: false
     javaHomeOption: 'JDKVersion'
-    sonarQubeRunAnalysis: false
+    sonarQubeRunAnalysis: true
+    sqGradlePluginVersionChoice: 'specify'
+    sonarQubeGradlePluginVersion: '3.3'
     spotBugsAnalysis: false
+ 
+- task: Docker@2
+  inputs:
+      containerRegistry: 'Docker'
+      command: 'login'
+  
+- task: Docker@2
+  inputs:
+      containerRegistry: 'Docker'
+      repository: 'devopsjobpilquiman/DevopsJobPilquiman_microservicio-spring'
+      command: 'build'
+      Dockerfile: '**/Dockerfile'
+
+- task: Docker@2
+  inputs:
+      containerRegistry: 'Docker'
+      repository: 'devopsjobpilquiman/DevopsJobPilquiman_microservicio-spring'
+      command: 'push'
