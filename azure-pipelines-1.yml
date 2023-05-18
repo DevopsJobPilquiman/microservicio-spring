@@ -1,0 +1,71 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- features-ms-JobEPilquimanS-mensaje
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: |
+      git fetch --unshallow
+  displayName: 'convert to non-shallow clone' 
+
+- task: Gradle@3
+  inputs:
+      gradleWrapperFile: 'gradlew'
+      tasks: 'build'
+      publishJUnitResults: true
+      javaHomeOption: 'JDKVersion'
+      sonarQubeRunAnalysis: false
+      spotBugsAnalysis: false
+  displayName: Build
+  
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'Laborario7'
+    organization: 'devopsjobpilquiman'
+    scannerMode: 'MSBuild'
+    projectKey: 'devopsjobpilquiman'
+  displayName: 'SonarCloud Prepare'
+
+- task: Gradle@3
+  displayName: 'Run test'
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    workingDirectory: '$(Build.SourcesDirectory)'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: false
+    spotBugsAnalysis: false
+
+- task: Gradle@3
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    tasks: 'sonar'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: true
+    sqGradlePluginVersionChoice: 'specify'
+    sonarQubeGradlePluginVersion: '3.3'
+    spotBugsAnalysis: false
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerConexionJob'
+    command: 'login'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerConexionJob'
+    repository: 'jobpilquiman/devopsjobpilquiman'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerConexionJob'
+    repository: 'jobpilquiman/devopsjobpilquiman'
+    command: 'push'
