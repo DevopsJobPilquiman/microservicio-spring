@@ -8,12 +8,6 @@ plugins {
 apply plugin: 'java'
 
 
-jacoco {
-	toolVersion = "0.8.8"
-	reportsDirectory = file("$buildDir/jacoco") // Directorio de destino para el informe HTML
-}
-
-
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
@@ -48,8 +42,5 @@ jacocoTestReport  {
 
 	
 
-	classDirectories.setFrom(files(sourceSets.main.output.classesDirs))
-	sourceDirectories.setFrom(files(sourceSets.main.allSource.srcDirs))
-	executionData.setFrom(files("${buildDir}/jacoco/test.exec"))
 	
 }
