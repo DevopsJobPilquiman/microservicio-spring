@@ -14,15 +14,6 @@ steps:
       git fetch --unshallow
   displayName: 'convert to non-shallow clone' 
 
-- task: Maven@3
-  inputs:
-      mavenPomFile: 'pom.xml'
-      publishJUnitResults: false
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '1.11'
-      mavenVersionOption: 'Default'
-      mavenOptions: '-Xmx3072m'
-
 - task: Gradle@3
   inputs:
     gradleWrapperFile: 'gradlew'
