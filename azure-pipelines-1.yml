@@ -61,6 +61,11 @@ steps:
     sonarQubeGradlePluginVersion: '3.3'
     spotBugsAnalysis: false
 
+- task: sonarcloud-buildbreaker@2
+  inputs:
+    SonarCloud: 'Laborario7'
+    organization: 'devopsjobpilquiman'
+
 - task: Docker@2
   inputs:
     containerRegistry: 'dockerConexionJob'
