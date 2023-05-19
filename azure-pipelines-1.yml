@@ -14,9 +14,8 @@ steps:
       git fetch --unshallow
   displayName: 'convert to non-shallow clone' 
 
-steps:
-  - task: Maven@3
-    inputs:
+- task: Maven@3
+  inputs:
       mavenPomFile: 'pom.xml'
       publishJUnitResults: false
       javaHomeOption: 'JDKVersion'
