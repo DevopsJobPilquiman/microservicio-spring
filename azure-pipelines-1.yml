@@ -37,7 +37,6 @@ steps:
   inputs:
     SonarCloud: 'Laborario7'
     organization: 'devopsjobpilquiman'
-    scannerMode: 'MSBuild'
     projectKey: 'devopsjobpilquiman'
   displayName: 'SonarCloud Prepare'
 
