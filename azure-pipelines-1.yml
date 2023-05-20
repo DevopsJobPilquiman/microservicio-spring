@@ -3,81 +3,91 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- features-ms-JobEPilquimanS-mensaje
+jobs:
+- job:
+  pool:
+      vmImage: ubuntu-latest
 
-pool:
-  vmImage: ubuntu-latest
+  steps:
+  - script: |
+        git fetch --unshallow
+    displayName: 'convert to non-shallow clone' 
 
-steps:
-- script: |
-      git fetch --unshallow
-  displayName: 'convert to non-shallow clone' 
+  - task: Gradle@3
+    inputs:
+      gradleWrapperFile: 'gradlew'
+      tasks: 'build jacocoTestReport'
+      publishJUnitResults: true
+      testResultsFiles: '**/TEST-*.xml'
+      javaHomeOption: 'JDKVersion'
+      sonarQubeRunAnalysis: false
+      spotBugsAnalysis: false
+    displayName: Build
 
-- task: Gradle@3
-  inputs:
-    gradleWrapperFile: 'gradlew'
-    tasks: 'build jacocoTestReport'
-    publishJUnitResults: true
-    testResultsFiles: '**/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    sonarQubeRunAnalysis: false
-    spotBugsAnalysis: false
-  displayName: Build
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'JaCoCo'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/reports/jacoco/test/jacocoTestReport.xml'
+      pathToSources: '$(System.DefaultWorkingDirectory)/src/main/java/'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/build/reports/jacoco/test'
 
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: 'JaCoCo'
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/reports/jacoco/test/jacocoTestReport.xml'
-    pathToSources: '$(System.DefaultWorkingDirectory)/src/main/java/'
-    reportDirectory: '$(System.DefaultWorkingDirectory)/build/reports/jacoco/test'
+      
+  - task: SonarCloudPrepare@1
+    inputs:
+      SonarCloud: 'Laborario7'
+      organization: 'devopsjobpilquiman'
+      projectKey: 'devopsjobpilquiman'
+    displayName: 'SonarCloud Prepare'
 
-    
-- task: SonarCloudPrepare@1
-  inputs:
-    SonarCloud: 'Laborario7'
-    organization: 'devopsjobpilquiman'
-    projectKey: 'devopsjobpilquiman'
-  displayName: 'SonarCloud Prepare'
+  - task: Gradle@3
+    displayName: 'Run test'
+    inputs:
+      gradleWrapperFile: 'gradlew'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      tasks: 'build'
+      publishJUnitResults: true
+      testResultsFiles: '**/TEST-*.xml'
+  
 
-- task: Gradle@3
-  displayName: 'Run test'
-  inputs:
-    gradleWrapperFile: 'gradlew'
-    workingDirectory: '$(Build.SourcesDirectory)'
-    tasks: 'build'
-    publishJUnitResults: true
-    testResultsFiles: '**/TEST-*.xml'
- 
+  - task: Gradle@3
+    inputs:
+      gradleWrapperFile: 'gradlew'
+      tasks: 'sonar'
+      publishJUnitResults: false
+      javaHomeOption: 'JDKVersion'
+      sonarQubeRunAnalysis: true
+      sqGradlePluginVersionChoice: 'specify'
+      sonarQubeGradlePluginVersion: '3.3'
+      spotBugsAnalysis: false
 
-- task: Gradle@3
-  inputs:
-    gradleWrapperFile: 'gradlew'
-    tasks: 'sonar'
-    publishJUnitResults: false
-    javaHomeOption: 'JDKVersion'
-    sonarQubeRunAnalysis: true
-    sqGradlePluginVersionChoice: 'specify'
-    sonarQubeGradlePluginVersion: '3.3'
-    spotBugsAnalysis: false
+  - task: sonarcloud-buildbreaker@2
+    inputs:
+      SonarCloud: 'Laborario7'
+      organization: 'devopsjobpilquiman'
 
-- task: sonarcloud-buildbreaker@2
-  inputs:
-    SonarCloud: 'Laborario7'
-    organization: 'devopsjobpilquiman'
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'dockerConexionJob'
+      command: 'login'
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'dockerConexionJob'
+      repository: 'jobpilquiman/devopsjobpilquiman'
+      command: 'build'
+      Dockerfile: '**/Dockerfile'
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'dockerConexionJob'
+      repository: 'jobpilquiman/devopsjobpilquiman'
+      command: 'push'
 
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerConexionJob'
-    command: 'login'
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerConexionJob'
-    repository: 'jobpilquiman/devopsjobpilquiman'
-    command: 'build'
-    Dockerfile: '**/Dockerfile'
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerConexionJob'
-    repository: 'jobpilquiman/devopsjobpilquiman'
-    command: 'push'
+- job:
+  pool: 'Default'
+  steps:
+  - task: Kubernetes@1
+    inputs:
+        connectionType: 'None'
+        command: 'apply'
+        arguments: '-f deployment-app.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
